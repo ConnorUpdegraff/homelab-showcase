@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#08121f">
+  <meta name="description" content="Explore my Proxmox hierarchy and the separate network flows for Tailscale host routes, Pi-hole DNS, and optional exit-node internet routing.">
+  <title>Architecture | My Home Lab</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
+</head>
+<body data-page="architecture" id="top">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <svg class="icon-definitions" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></symbol>
+    <symbol id="i-server" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="7" rx="2"/><rect x="3" y="14" width="18" height="7" rx="2"/><path d="M7 6.5h.01M7 17.5h.01M12 6.5h5M12 17.5h5"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="m12 3 9 5v9l-9 5-9-5V8l9-5Zm0 9 9-4M12 12 3 8m9 4v10M7.5 5.5l9 5"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="m12 3 8 3v6c0 4-4 7-8 9-4-2-8-5-8-9V6l8-3Z"/><path d="m8 12 3 3 5-6"/></symbol>
+    <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M5 3v8m0 4v6M12 3v2m0 4v12M19 3v12m0 4v2M2 11h6M9 5h6m4 4v0M16 15h6"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M12 6v15M3 3c4 0 6 1 9 3 3-2 5-3 9-3v15c-4 0-6 1-9 3-3-2-5-3-9-3V3Z"/></symbol>
+    <symbol id="i-music" viewBox="0 0 24 24"><path d="M9 17V5l11-2v12M9 9l11-2"/><ellipse cx="6" cy="18" rx="3" ry="3"/><ellipse cx="17" cy="16" rx="3" ry="3"/></symbol>
+    <symbol id="i-network" viewBox="0 0 24 24"><circle cx="5" cy="6" r="3"/><circle cx="19" cy="6" r="3"/><circle cx="12" cy="19" r="3"/><path d="M8 6h8M6.5 9l4 7m7-7-4 7"/></symbol>
+  </svg>
+  <header class="site-header">
+    <div class="nav-wrap container">
+      <a class="brand" href="index.html" aria-label="My Home Lab — Home"><span class="brand-mark" aria-hidden="true">hl<span>.</span></span><span>MY HOME LAB<span class="brand-sub">BUILD NOTES / V.02</span></span></a>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-nav">Menu <span aria-hidden="true">☰</span></button>
+      <nav class="primary-nav" id="primary-nav" aria-label="Main navigation"><a href="index.html">Home</a>
+<a href="architecture.html" aria-current="page">Architecture</a>
+<a href="services.html">Services</a>
+<a href="engineering.html">Engineering</a>
+<a href="roadmap.html">Roadmap</a></nav>
+      <span class="header-note">INDEPENDENT PROJECT</span>
+    </div>
+  </header>
+  <main class="container" id="main" tabindex="-1">
+<header class="page-heading"><p class="eyebrow">01 / ARCHITECTURE</p><h1>What runs where.<br><span>How I reach it.</span></h1><p class="page-intro">Proxmox manages two Ubuntu environments on my HP laptop: one for Linux practice and one for Docker and Tailscale. The two views below show where everything runs and how I connect to it. Select a component to read my setup notes.</p></header>
+<div class="architecture-toolbar">
+<div class="view-switcher" role="tablist" aria-label="Architecture view"><button type="button" id="tab-infrastructure" role="tab" aria-selected="true" aria-controls="view-infrastructure" data-view="infrastructure"><svg class="icon" aria-hidden="true"><use href="#i-server"/></svg> Infrastructure hierarchy</button><button type="button" id="tab-network" role="tab" aria-selected="false" aria-controls="view-network" tabindex="-1" data-view="network"><svg class="icon" aria-hidden="true"><use href="#i-network"/></svg> Network access</button></div>
+<p>Choose a component to read my notes.</p></div>
+<div class="architecture-layout">
+  <div class="diagram-surface">
+    <section id="view-infrastructure" role="tabpanel" aria-labelledby="tab-infrastructure" data-view-panel="infrastructure">
+      <div class="diagram-heading"><h2>Infrastructure hierarchy</h2><span class="eyebrow">CONTAINMENT = RUNS INSIDE</span></div>
+      <div class="host-frame" id="infrastructure-diagram"><button type="button" class="diagram-node " data-node="host" aria-pressed="true" aria-controls="component-details"><strong>HP ProBook 645 G1</strong><span>AMD A8-5550M · 6.96 GiB usable · 500 GB SSD</span><span class="node-corner" aria-hidden="true">↗</span></button>
+        <div class="nested-frame"><button type="button" class="diagram-node " data-node="proxmox" aria-pressed="false" aria-controls="component-details"><strong>Proxmox VE 9.2.21</strong><span>Virtualization and guest backups</span><span class="node-corner" aria-hidden="true">↗</span></button>
+          <div class="guest-layout">
+<div class="ct-frame"><button type="button" class="diagram-node " data-node="ct100" aria-pressed="false" aria-controls="component-details"><strong>CT 100 · Ubuntu LXC</strong><span>Linux experimentation</span><span class="node-corner" aria-hidden="true">↗</span></button><p class="diagram-note">A separate system container for Linux practice.</p></div>
+            <div class="vm-frame"><button type="button" class="diagram-node " data-node="vm200" aria-pressed="false" aria-controls="component-details"><strong>VM 200 · Ubuntu Server 24.04</strong><span>2 vCPUs · 2 GiB RAM · 32 GB virtual disk</span><span class="node-corner" aria-hidden="true">↗</span></button>
+              <div class="docker-frame"><button type="button" class="diagram-node " data-node="docker" aria-pressed="false" aria-controls="component-details"><strong>Docker Engine + Compose</strong><span>Application container runtime</span><span class="node-corner" aria-hidden="true">↗</span></button>
+                <div class="application-grid"><button type="button" class="diagram-node " data-node="pihole" aria-pressed="false" aria-controls="component-details"><strong>Pi-hole</strong><span>DNS filtering</span><span class="node-corner" aria-hidden="true">↗</span></button><button type="button" class="diagram-node " data-node="portainer" aria-pressed="false" aria-controls="component-details"><strong>Portainer</strong><span>Container management</span><span class="node-corner" aria-hidden="true">↗</span></button><button type="button" class="diagram-node " data-node="audiobookshelf" aria-pressed="false" aria-controls="component-details"><strong>Audiobookshelf</strong><span>Audiobooks & podcasts</span><span class="node-corner" aria-hidden="true">↗</span></button><button type="button" class="diagram-node " data-node="navidrome" aria-pressed="false" aria-controls="component-details"><strong>Navidrome</strong><span>Music server</span><span class="node-corner" aria-hidden="true">↗</span></button></div>
+              </div>
+              <div class="native-frame"><span class="boundary-label">ALSO ON UBUNTU · OUTSIDE DOCKER</span><button type="button" class="diagram-node " data-node="tailscale" aria-pressed="false" aria-controls="component-details"><strong>Tailscale</strong><span>Native service · host routes · optional exit node</span><span class="node-corner" aria-hidden="true">↗</span></button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="diagram-footnote">Nested boundaries show where software runs. CT 100 is an LXC guest; it is not part of the Docker stack.</p>
+    </section>
+    <section id="view-network" role="tabpanel" aria-labelledby="tab-network" data-view-panel="network" hidden>
+      <div class="diagram-heading"><h2>Follow a network path</h2><span class="eyebrow">SELECT A FLOW</span></div>
+      <div class="flow-switcher" role="group" aria-label="Network flow"><button type="button" data-flow="remote" aria-pressed="true" aria-controls="flow-remote">Remote access</button><button type="button" data-flow="dns" aria-pressed="false" aria-controls="flow-dns">Pi-hole DNS</button><button type="button" data-flow="exit" aria-pressed="false" aria-controls="flow-exit">Exit-node internet</button></div>
+      <div id="flow-remote" data-flow-panel="remote"><p class="flow-description">I use my personal tailnet to reach two specific LAN hosts. I do not advertise the entire home subnet.</p>
+<ol class="network-flow"><li><button type="button" class="diagram-node " data-node="remote" aria-pressed="false" aria-controls="component-details"><strong>Authorized remote device</strong><span>Member of my personal tailnet</span><span class="node-corner" aria-hidden="true">↗</span></button></li><li><span class="flow-connector">Authenticated Tailscale connection <span aria-hidden="true">↓</span></span><button type="button" class="diagram-node " data-node="tailscale" aria-pressed="false" aria-controls="component-details"><strong>Native Tailscale · VM 200</strong><span>Receives the connection and provides routing</span><span class="node-corner" aria-hidden="true">↗</span></button></li><li><span class="flow-connector">Approved /32 host routes <span aria-hidden="true">↓</span></span><button type="button" class="diagram-node " data-node="routes" aria-pressed="false" aria-controls="component-details"><strong>Proxmox & Ubuntu host interfaces</strong><span>10.0.0.245/32 · 10.0.0.250/32</span><span class="node-corner" aria-hidden="true">↗</span></button></li></ol>
+<p class="path-result">These routes let me reach the two lab hosts. Using my home connection for internet traffic is a separate choice on the remote device.</p></div>
+      <div id="flow-dns" data-flow-panel="dns" hidden><p class="flow-description">I configured my Dell to use Pi-hole through Tailscale DNS because my gateway would not let me make the network-wide DNS change I wanted.</p>
+<ol class="network-flow"><li><button type="button" class="diagram-node " data-node="dell" aria-pressed="false" aria-controls="component-details"><strong>Dell · configured DNS client</strong><span>Pi-hole selected through Tailscale DNS</span><span class="node-corner" aria-hidden="true">↗</span></button></li><li><span class="flow-connector">DNS query · TCP or UDP port 53 <span aria-hidden="true">↓</span></span><button type="button" class="diagram-node " data-node="pihole" aria-pressed="false" aria-controls="component-details"><strong>Pi-hole · Docker on VM 200</strong><span>Filters queries and returns DNS answers</span><span class="node-corner" aria-hidden="true">↗</span></button></li><li><span class="flow-connector">Allowed lookups Pi-hole needs to pass on <span aria-hidden="true">↓</span></span><button type="button" class="diagram-node " data-node="upstream" aria-pressed="false" aria-controls="component-details"><strong>Upstream DNS resolvers</strong><span>Answer allowed lookups Pi-hole cannot answer from its cache</span><span class="node-corner" aria-hidden="true">↗</span></button></li></ol>
+<p class="path-result">Replies return to the Dell. In my blocking test, Pi-hole returned <code>0.0.0.0</code> for an advertising domain. Cached and blocked responses do not require the upstream step.</p></div>
+      <div id="flow-exit" data-flow-panel="exit" hidden><p class="flow-description">This path is optional: the remote device must select my Ubuntu VM as its exit node.</p>
+<ol class="network-flow"><li><button type="button" class="diagram-node " data-node="exitclient" aria-pressed="false" aria-controls="component-details"><strong>Remote device · exit node selected</strong><span>Internet traffic uses the selected node</span><span class="node-corner" aria-hidden="true">↗</span></button></li><li><span class="flow-connector">Tailscale connection <span aria-hidden="true">↓</span></span><button type="button" class="diagram-node " data-node="tailscale" aria-pressed="false" aria-controls="component-details"><strong>Ubuntu VM 200 · exit node</strong><span>Persistent Linux IPv4/IPv6 forwarding</span><span class="node-corner" aria-hidden="true">↗</span></button></li><li><span class="flow-connector">Forwarded internet traffic <span aria-hidden="true">↓</span></span><button type="button" class="diagram-node " data-node="gateway" aria-pressed="false" aria-controls="component-details"><strong>Home gateway</strong><span>Outbound path from the lab</span><span class="node-corner" aria-hidden="true">↗</span></button></li><li><span class="flow-connector">Home internet connection <span aria-hidden="true">↓</span></span><button type="button" class="diagram-node " data-node="internet" aria-pressed="false" aria-controls="component-details"><strong>Internet destination</strong><span>Internet access through the exit node tested</span><span class="node-corner" aria-hidden="true">↗</span></button></li></ol>
+<p class="path-result">The exit node lets a remote device use my home internet connection. The two /32 routes let it reach specific hosts on my home network. I configured and tested these features separately.</p></div>
+    </section>
+  </div>
+  <aside class="component-details" id="component-details" tabindex="-1" aria-label="Selected component details">
+<div class="detail-heading"><span>MY CONFIGURATION NOTES</span><span aria-hidden="true">↗</span></div>
+<section class="component-panel" id="detail-host" data-component-panel="host" aria-labelledby="title-host">
+    <p class="eyebrow">PHYSICAL HOST</p><h3 id="title-host">HP ProBook 645 G1</h3>
+<dl class="detail-facts">
+<div><dt>Processor</dt><dd>AMD A8-5550M APU with Radeon HD Graphics</dd></div>
+<div><dt>Logical CPUs</dt><dd>4</dd></div>
+<div><dt>Usable RAM</dt><dd>Approximately 6.96 GiB</dd></div>
+<div><dt>Physical storage</dt><dd>500 GB SSD</dd></div>
+<div><dt>Hypervisor</dt><dd>Proxmox VE 9.2.21</dd></div>
+</dl>
+    <h4>Its role in my lab</h4><p>I repurposed my HP laptop to learn how to manage a server and the environments running on it.</p><h4>Setup &amp; decisions</h4><p>I installed Proxmox directly on it. Both guests and the local backup storage depend on this one machine.</p><h4>What I checked</h4><p>The Proxmox screenshot shows the CPU model, four logical CPUs, and usable memory. The usage figures are from when I took it.</p></section>
+<section class="component-panel" id="detail-proxmox" data-component-panel="proxmox" aria-labelledby="title-proxmox" hidden>
+    <p class="eyebrow">HYPERVISOR</p><h3 id="title-proxmox">Proxmox VE 9.2.21</h3>
+<dl class="detail-facts">
+<div><dt>Linux container</dt><dd>CT 100 · Ubuntu LXC</dd></div>
+<div><dt>Virtual machine</dt><dd>VM 200 · Ubuntu Server 24.04</dd></div>
+<div><dt>Backup job</dt><dd>Daily at 03:00 · snapshot mode</dd></div>
+<div><dt>Compression / retention</dt><dd>ZSTD · keep-last=3</dd></div>
+</dl>
+    <h4>Its role in my lab</h4><p>I wanted one place to create, manage, and back up separate Linux environments.</p><h4>Setup &amp; decisions</h4><p>CT 100 is my experimentation space; VM 200 runs the applications. The scheduled backups are stored locally on the same physical laptop.</p><h4>What I checked</h4><p>I completed manual backups of both guests and configured the daily job. I still need to test a restore and keep backup copies on separate physical storage.</p></section>
+<section class="component-panel" id="detail-ct100" data-component-panel="ct100" aria-labelledby="title-ct100" hidden>
+    <p class="eyebrow">LXC / CT 100</p><h3 id="title-ct100">Ubuntu Linux lab</h3>
+<dl class="detail-facts">
+<div><dt>Type</dt><dd>Proxmox Linux LXC container</dd></div>
+<div><dt>Purpose</dt><dd>Linux experimentation</dd></div>
+<div><dt>Parent</dt><dd>Proxmox VE</dd></div>
+<div><dt>Backup selection</dt><dd>CT 100 included</dd></div>
+</dl>
+    <h4>Its role in my lab</h4><p>I created a separate Ubuntu environment for Linux experimentation, away from the VM that hosts my services.</p><h4>Setup &amp; decisions</h4><p>This is a system container managed by Proxmox, not one of the Docker application containers inside VM 200.</p><h4>What I checked</h4><p>CT 100 appears in the host inventory. I completed a manual backup and included it in the daily backup job.</p></section>
+<section class="component-panel" id="detail-vm200" data-component-panel="vm200" aria-labelledby="title-vm200" hidden>
+    <p class="eyebrow">VIRTUAL MACHINE / VM 200</p><h3 id="title-vm200">Ubuntu Server 24.04</h3>
+<dl class="detail-facts">
+<div><dt>Compute</dt><dd>2 vCPUs</dd></div>
+<div><dt>Memory</dt><dd>2 GiB RAM</dd></div>
+<div><dt>Virtual disk</dt><dd>32 GB</dd></div>
+<div><dt>Runs</dt><dd>Docker Engine + native Tailscale</dd></div>
+</dl>
+    <h4>Its role in my lab</h4><p>I use this Ubuntu VM to run my applications and Tailscale.</p><h4>Setup &amp; decisions</h4><p>I used Netplan to give the VM a static IPv4 address outside the gateway’s DHCP range. Tailscale runs directly on Ubuntu, alongside Docker.</p><h4>What I checked</h4><p>I checked that the VM could reach the gateway, access the internet, and resolve domain names before relying on it for my services.</p></section>
+<section class="component-panel" id="detail-docker" data-component-panel="docker" aria-labelledby="title-docker" hidden>
+    <p class="eyebrow">APPLICATION RUNTIME</p><h3 id="title-docker">Docker Engine + Compose</h3>
+<dl class="detail-facts">
+<div><dt>Parent</dt><dd>Ubuntu VM 200</dd></div>
+<div><dt>Applications</dt><dd>Pi-hole, Portainer, Audiobookshelf, Navidrome</dd></div>
+<div><dt>Persistence</dt><dd>Application volumes and bind mounts</dd></div>
+</dl>
+    <h4>Its role in my lab</h4><p>I installed Docker Engine and Compose so I could deploy and manage application services within the Ubuntu VM.</p><h4>Setup &amp; decisions</h4><p>I configured volumes and bind mounts to keep application data outside the containers. I keep track of application settings, media files, and backup copies separately.</p><h4>What I checked</h4><p>I checked that I could access Portainer and Pi-hole, then added the two media services. The Portainer screenshot shows all four containers.</p></section>
+<section class="component-panel" id="detail-pihole" data-component-panel="pihole" aria-labelledby="title-pihole" hidden>
+    <p class="eyebrow">DOCKER APPLICATION</p><h3 id="title-pihole">Pi-hole</h3>
+<dl class="detail-facts">
+<div><dt>Role</dt><dd>DNS filtering</dd></div>
+<div><dt>Published DNS ports</dt><dd>53/UDP and 53/TCP</dd></div>
+<div><dt>Configured client</dt><dd>Dell via Tailscale DNS</dd></div>
+</dl>
+    <h4>Its role in my lab</h4><p>I deployed Pi-hole to learn how DNS filtering works and to use it on my Dell.</p><h4>Setup &amp; decisions</h4><p>My Xfinity gateway would not let me make the network-wide DNS change I wanted, so I configured the Dell to use Pi-hole. Other home devices do not automatically use it.</p><h4>What I checked</h4><p>I used nslookup and Resolve-DnsName to check normal resolution and blocking. The blocked advertising-domain test returned 0.0.0.0.</p></section>
+<section class="component-panel" id="detail-portainer" data-component-panel="portainer" aria-labelledby="title-portainer" hidden>
+    <p class="eyebrow">DOCKER APPLICATION</p><h3 id="title-portainer">Portainer</h3>
+<dl class="detail-facts">
+<div><dt>Role</dt><dd>Container management</dd></div>
+<div><dt>Parent</dt><dd>Docker on VM 200</dd></div>
+<div><dt>Evidence</dt><dd>Four application containers shown</dd></div>
+</dl>
+    <h4>Its role in my lab</h4><p>I deployed Portainer to inspect and manage the Docker applications through a graphical interface.</p><h4>Setup &amp; decisions</h4><p>I installed it alongside Pi-hole before adding Audiobookshelf and Navidrome. I also configured persistent storage so application data would not depend on keeping the same containers.</p><h4>What I checked</h4><p>I checked that I could access the service. The container-list screenshot shows the four applications at the time I captured it.</p></section>
+<section class="component-panel" id="detail-audiobookshelf" data-component-panel="audiobookshelf" aria-labelledby="title-audiobookshelf" hidden>
+    <p class="eyebrow">DOCKER APPLICATION</p><h3 id="title-audiobookshelf">Audiobookshelf</h3>
+<dl class="detail-facts">
+<div><dt>Role</dt><dd>Audiobooks and podcasts</dd></div>
+<div><dt>Parent</dt><dd>Docker on VM 200</dd></div>
+<div><dt>Library</dt><dd>Still in progress</dd></div>
+</dl>
+    <h4>Its role in my lab</h4><p>I wanted a self-hosted place for audiobooks and podcasts, and a practical reason to work with media storage.</p><h4>Setup &amp; decisions</h4><p>I deployed the service after Portainer and Pi-hole. Media libraries and the application’s own persistent data need to be managed separately.</p><h4>What I checked</h4><p>The container is visible in the Portainer screenshot. I am still adding audiobooks and podcasts to the library.</p></section>
+<section class="component-panel" id="detail-navidrome" data-component-panel="navidrome" aria-labelledby="title-navidrome" hidden>
+    <p class="eyebrow">DOCKER APPLICATION</p><h3 id="title-navidrome">Navidrome</h3>
+<dl class="detail-facts">
+<div><dt>Role</dt><dd>Personal music server</dd></div>
+<div><dt>Parent</dt><dd>Docker on VM 200</dd></div>
+<div><dt>Collection</dt><dd>Still being populated</dd></div>
+</dl>
+    <h4>Its role in my lab</h4><p>I deployed Navidrome to host my own music collection and get more experience maintaining a media application.</p><h4>Setup &amp; decisions</h4><p>I keep the music files separate from Navidrome’s settings and other application data. Both still need backups; a container mount does not protect them from storage failure.</p><h4>What I checked</h4><p>The Portainer screenshot records the deployment. Populating and organizing the music collection is still in progress.</p></section>
+<section class="component-panel" id="detail-tailscale" data-component-panel="tailscale" aria-labelledby="title-tailscale" hidden>
+    <p class="eyebrow">NATIVE LINUX SERVICE</p><h3 id="title-tailscale">Tailscale on VM 200</h3>
+<dl class="detail-facts">
+<div><dt>Installation</dt><dd>Native on Ubuntu, outside Docker</dd></div>
+<div><dt>Network</dt><dd>Personal tailnet</dd></div>
+<div><dt>Host routes</dt><dd>10.0.0.245/32 · 10.0.0.250/32</dd></div>
+<div><dt>Exit node</dt><dd>Enabled; optional on each client</dd></div>
+</dl>
+    <h4>Its role in my lab</h4><p>I wanted to reach my lab securely from my Dell and iPhone while keeping my personal setup separate from the Tailscale/Headscale environment I use for school.</p><h4>Setup &amp; decisions</h4><p>I advertised and approved two /32 host routes rather than the whole home subnet. For the exit-node role, I configured persistent IPv4 and IPv6 forwarding and approved the node.</p><h4>What I checked</h4><p>I tested remote access to the Proxmox and Ubuntu interfaces. I also checked that selecting the exit node sent internet traffic through my home connection.</p></section>
+<section class="component-panel" id="detail-remote" data-component-panel="remote" aria-labelledby="title-remote" hidden>
+    <p class="eyebrow">REMOTE CLIENT</p><h3 id="title-remote">Authorized personal device</h3>
+<dl class="detail-facts">
+<div><dt>Membership</dt><dd>My personal tailnet</dd></div>
+<div><dt>Private access</dt><dd>Authorized devices and approved routes</dd></div>
+<div><dt>Internet routing</dt><dd>Exit node only when selected</dd></div>
+</dl>
+    <h4>Its role in my lab</h4><p>I connected personal devices to my own tailnet so I could reach the lab away from home.</p><h4>Setup &amp; decisions</h4><p>I kept my school Tailscale/Headscale setup separate. I connected my personal devices, set up routes to the two lab hosts, and configured the exit node as a separate option.</p><h4>What I checked</h4><p>I tested remote access to the lab interfaces. Connecting to Tailscale alone does not mean all internet traffic uses my home connection.</p></section>
+<section class="component-panel" id="detail-routes" data-component-panel="routes" aria-labelledby="title-routes" hidden>
+    <p class="eyebrow">APPROVED LAN DESTINATIONS</p><h3 id="title-routes">Routes to two specific hosts</h3>
+<dl class="detail-facts">
+<div><dt>Approved route</dt><dd>10.0.0.245/32</dd></div>
+<div><dt>Approved route</dt><dd>10.0.0.250/32</dd></div>
+<div><dt>Destinations</dt><dd>Proxmox and Ubuntu host interfaces</dd></div>
+</dl>
+    <h4>Its role in my lab</h4><p>I only needed remote access to two host interfaces, so I advertised those specific destinations.</p><h4>Setup &amp; decisions</h4><p>Each /32 route covers one IPv4 address, so I only advertised the two hosts I needed. Tailscale authentication and access rules still control who can connect.</p><h4>What I checked</h4><p>Both routes were approved in the Tailscale administration console, and I tested access from authorized remote devices. The approval screenshot is included in Engineering.</p></section>
+<section class="component-panel" id="detail-dell" data-component-panel="dell" aria-labelledby="title-dell" hidden>
+    <p class="eyebrow">DNS CLIENT</p><h3 id="title-dell">Dell with Tailscale DNS</h3>
+<dl class="detail-facts">
+<div><dt>Resolver choice</dt><dd>Pi-hole via Tailscale DNS</dd></div>
+<div><dt>DNS transport</dt><dd>Published TCP/UDP port 53</dd></div>
+<div><dt>Scope</dt><dd>This configured client</dd></div>
+</dl>
+    <h4>Its role in my lab</h4><p>I configured my Dell to use Pi-hole through Tailscale DNS when the network-wide gateway change was not available.</p><h4>Setup &amp; decisions</h4><p>I chose different DNS settings for my Dell and iPhone after tracing a Private Relay warning to the DNS override. I kept Private Relay available on the iPhone’s cellular connection.</p><h4>What I checked</h4><p>I used nslookup and Resolve-DnsName to check normal lookups and blocking on the Dell. Those tests do not mean other home devices use Pi-hole.</p></section>
+<section class="component-panel" id="detail-upstream" data-component-panel="upstream" aria-labelledby="title-upstream" hidden>
+    <p class="eyebrow">DNS RESOLUTION</p><h3 id="title-upstream">Upstream DNS resolvers</h3>
+<dl class="detail-facts">
+<div><dt>Receives</dt><dd>Allowed queries that need upstream resolution</dd></div>
+<div><dt>Blocked test</dt><dd>Pi-hole returned 0.0.0.0</dd></div>
+<div><dt>Cache</dt><dd>Some answers can be served locally</dd></div>
+</dl>
+    <h4>Its role in my lab</h4><p>I configured upstream DNS resolvers so Pi-hole could resolve allowed domains as well as filter blocked ones.</p><h4>Setup &amp; decisions</h4><p>The arrow shows lookups Pi-hole needs to pass to an upstream resolver. Pi-hole can answer blocked queries and cached lookups without that step.</p><h4>What I checked</h4><p>Normal domain lookups resolved successfully. A separate advertising-domain lookup returned the blocking response I expected.</p></section>
+<section class="component-panel" id="detail-exitclient" data-component-panel="exitclient" aria-labelledby="title-exitclient" hidden>
+    <p class="eyebrow">OPTIONAL CLIENT SETTING</p><h3 id="title-exitclient">Remote device selects exit node</h3>
+<dl class="detail-facts">
+<div><dt>Choice</dt><dd>Ubuntu VM 200 as exit node</dd></div>
+<div><dt>Effect</dt><dd>Internet traffic through my home connection</dd></div>
+<div><dt>Separate from</dt><dd>Access to the two advertised LAN hosts</dd></div>
+</dl>
+    <h4>Its role in my lab</h4><p>I configured the exit node for occasions when I want a remote device’s internet traffic to leave through my home connection.</p><h4>Setup &amp; decisions</h4><p>I advertised the VM as an exit node, approved it in Tailscale, and selected it on the remote device. Approving the two host routes alone would not send internet traffic through it.</p><h4>What I checked</h4><p>I tested that the remote device used my home internet connection after selecting the exit node. I have kept the public IP address out of these notes.</p></section>
+<section class="component-panel" id="detail-gateway" data-component-panel="gateway" aria-labelledby="title-gateway" hidden>
+    <p class="eyebrow">HOME NETWORK EDGE</p><h3 id="title-gateway">Home gateway</h3>
+<dl class="detail-facts">
+<div><dt>Role</dt><dd>Path from the lab to the internet</dd></div>
+<div><dt>DHCP allocation</dt><dd>10.0.0.2–10.0.0.240</dd></div>
+<div><dt>DNS limitation</dt><dd>Desired gateway-wide override unavailable</dd></div>
+</dl>
+    <h4>Its role in my lab</h4><p>The Ubuntu VM reaches the internet through my home gateway. I checked the gateway’s DHCP range before choosing the VM’s static IP address.</p><h4>Setup &amp; decisions</h4><p>I chose a static VM address outside that dynamic allocation. The Xfinity gateway did not allow my intended network-wide custom DNS configuration.</p><h4>What I checked</h4><p>I checked that the VM could reach the gateway and the internet. I configured Pi-hole DNS for the Dell, rather than assuming the gateway would apply it to every device.</p></section>
+<section class="component-panel" id="detail-internet" data-component-panel="internet" aria-labelledby="title-internet" hidden>
+    <p class="eyebrow">EXIT-NODE DESTINATION</p><h3 id="title-internet">Internet access through home</h3>
+<dl class="detail-facts">
+<div><dt>Path</dt><dd>Selected remote client → VM 200 → home gateway</dd></div>
+<div><dt>Forwarding</dt><dd>Persistent IPv4 and IPv6 on Ubuntu</dd></div>
+<div><dt>Evidence</dt><dd>Internet access through the exit node tested</dd></div>
+</dl>
+    <h4>Its role in my lab</h4><p>This is the internet path I tested after enabling the Ubuntu VM’s exit-node role.</p><h4>Setup &amp; decisions</h4><p>It is different from reaching the private lab hosts through /32 routes. The remote client must select the exit node to use this path.</p><h4>What I checked</h4><p>I checked that a remote device could use my home connection through the exit node. The diagram shows the path I configured; it does not display a live connection or measure its performance.</p></section>
+<button class="return-to-node" type="button">↑ Return to selected component</button></aside>
+</div>
+<p class="sr-only" id="diagram-announcement" role="status"></p>
+<p class="section-note">These diagrams show my setup and the paths traffic takes. They do not show live connections, a specific Docker network mode, or the physical network layout.</p>
+<noscript><p class="notice">Interactive selection needs JavaScript. The hierarchy is shown above; the full routing and DNS stories are available on the <a href="engineering.html">Engineering page</a>.</p></noscript>
+<section class="section evidence-section" aria-labelledby="inventory-title">
+<div class="section-heading">
+<div><p class="eyebrow">FROM THE LAB</p><h2 id="inventory-title">Host and guest inventory</h2></div>
+<p>My Proxmox summary shows both guests, the processor, and usable RAM. The root filesystem size shown here is only part of the 500 GB SSD.</p></div>
+<figure class="evidence">
+  <a class="image-link" href="assets/screenshots/Proxmox.png" data-lightbox aria-label="Enlarge screenshot: Proxmox host inventory"><img src="assets/screenshots/Proxmox.png" width="2559" height="1161" alt="Proxmox VE 9.2.21 inventory showing CT 100 and VM 200, four AMD A8-5550M logical CPUs, and 6.96 GiB RAM" loading="lazy" decoding="async"><span class="enlarge-hint"><svg class="icon" aria-hidden="true"><use href="#i-arrow"/></svg> Enlarge evidence</span></a>
+  <figcaption><strong>Proxmox host inventory</strong><p>The CPU usage and uptime visible in this capture describe that moment only. The physical SSD is 500 GB; the displayed root filesystem is one part of its storage allocation.</p><span class="evidence-label">Recorded screenshot · values are from the time of capture</span></figcaption>
+</figure>
+</section>
+<aside class="next-page">
+<div><p class="eyebrow">CONTINUE EXPLORING</p><h2>The routing decisions behind this diagram</h2><p>Read how I set up my personal Tailscale network, routes to the two lab hosts, and optional exit node.</p></div>
+<a class="button button-secondary" href="engineering.html#tailscale">Continue <svg class="icon" aria-hidden="true"><use href="#i-arrow"/></svg></a></aside>
+
+  </main>
+  <footer class="site-footer container">
+<div><a class="footer-brand" href="index.html">MY HOME LAB<span>.</span></a><p>My first independently built home infrastructure project.</p></div>
+<p>IT Support Technician · CNSA student<br>One physical host. Documentation, not a live dashboard.</p><a class="back-top" href="#top">Back to top ↑</a></footer>
+  <dialog class="lightbox" aria-labelledby="lightbox-title">
+    <div class="lightbox-toolbar"><h2 id="lightbox-title">Screenshot evidence</h2><button type="button" class="lightbox-close" aria-label="Close enlarged screenshot">Close ×</button></div>
+    <div class="lightbox-image-wrap"></div>
+<p class="lightbox-caption"></p>
+  </dialog>
+</body>
+</html>

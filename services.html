@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#08121f">
+  <meta name="description" content="Implementation notes for Pi-hole, Portainer, Audiobookshelf, Navidrome, Docker Compose, and native Tailscale in my first home lab.">
+  <title>Services | My Home Lab</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
+</head>
+<body data-page="services" id="top">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <svg class="icon-definitions" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></symbol>
+    <symbol id="i-server" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="7" rx="2"/><rect x="3" y="14" width="18" height="7" rx="2"/><path d="M7 6.5h.01M7 17.5h.01M12 6.5h5M12 17.5h5"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="m12 3 9 5v9l-9 5-9-5V8l9-5Zm0 9 9-4M12 12 3 8m9 4v10M7.5 5.5l9 5"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="m12 3 8 3v6c0 4-4 7-8 9-4-2-8-5-8-9V6l8-3Z"/><path d="m8 12 3 3 5-6"/></symbol>
+    <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M5 3v8m0 4v6M12 3v2m0 4v12M19 3v12m0 4v2M2 11h6M9 5h6m4 4v0M16 15h6"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M12 6v15M3 3c4 0 6 1 9 3 3-2 5-3 9-3v15c-4 0-6 1-9 3-3-2-5-3-9-3V3Z"/></symbol>
+    <symbol id="i-music" viewBox="0 0 24 24"><path d="M9 17V5l11-2v12M9 9l11-2"/><ellipse cx="6" cy="18" rx="3" ry="3"/><ellipse cx="17" cy="16" rx="3" ry="3"/></symbol>
+    <symbol id="i-network" viewBox="0 0 24 24"><circle cx="5" cy="6" r="3"/><circle cx="19" cy="6" r="3"/><circle cx="12" cy="19" r="3"/><path d="M8 6h8M6.5 9l4 7m7-7-4 7"/></symbol>
+  </svg>
+  <header class="site-header">
+    <div class="nav-wrap container">
+      <a class="brand" href="index.html" aria-label="My Home Lab — Home"><span class="brand-mark" aria-hidden="true">hl<span>.</span></span><span>MY HOME LAB<span class="brand-sub">BUILD NOTES / V.02</span></span></a>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-nav">Menu <span aria-hidden="true">☰</span></button>
+      <nav class="primary-nav" id="primary-nav" aria-label="Main navigation"><a href="index.html">Home</a>
+<a href="architecture.html">Architecture</a>
+<a href="services.html" aria-current="page">Services</a>
+<a href="engineering.html">Engineering</a>
+<a href="roadmap.html">Roadmap</a></nav>
+      <span class="header-note">INDEPENDENT PROJECT</span>
+    </div>
+  </header>
+  <main class="container" id="main" tabindex="-1">
+<header class="page-heading"><p class="eyebrow">02 / SERVICES</p><h1>The applications<br><span>I’m running.</span></h1><p class="page-intro">I installed four Docker applications in VM 200 for DNS filtering, container management, audiobooks, podcasts, and music. Tailscale runs directly on Ubuntu alongside Docker. Open a card for the setup details and what I’m still working on.</p></header>
+<section class="service-grid" aria-label="Service implementation cards">
+<details class="service-card" id="service-pihole"><summary><span class="service-top"><svg class="icon" aria-hidden="true"><use href="#i-shield"/></svg><span class="eyebrow">01 / DNS</span></span><h2>Pi-hole</h2><span class="card-front"><span class="service-description">I use Pi-hole to filter DNS queries on my Dell and learn how to check which DNS service the computer is using.</span><span class="tech-tags"><span>Docker</span><span>TCP/UDP 53</span><span>Client DNS</span></span></span><span class="card-toggle"><span class="show-details">View implementation</span><span class="show-overview">Return to overview</span><span aria-hidden="true">↻</span></span></summary>
+<div class="card-back"><h3>How I implemented it</h3><p>I published DNS port 53 over both TCP and UDP and configured upstream resolvers. Tailscale DNS points my Dell to Pi-hole.</p><h3>What matters in this lab</h3><p>The gateway did not allow the network-wide DNS setup I wanted. I verified ordinary resolution and a blocked advertising domain with nslookup and Resolve-DnsName.</p><p class="service-state">DNS resolution and blocking tested on my Dell</p><a class="inline-link" href="engineering.html#dns">Related build notes ↗</a><button type="button" class="card-return js-only" data-close-card>Return to overview ↑</button></div>
+</details>
+<details class="service-card" id="service-tailscale"><summary><span class="service-top"><svg class="icon" aria-hidden="true"><use href="#i-network"/></svg><span class="eyebrow">02 / REMOTE NETWORKING</span></span><h2>Tailscale</h2><span class="card-front"><span class="service-description">I use my personal Tailscale network to reach the lab from my Dell and iPhone. Two host routes provide access to the lab, and an optional exit node lets me use my home internet connection remotely.</span><span class="tech-tags"><span>Native on Ubuntu</span><span>Two /32 routes</span><span>Exit node</span></span></span><span class="card-toggle"><span class="show-details">View implementation</span><span class="show-overview">Return to overview</span><span aria-hidden="true">↻</span></span></summary>
+<div class="card-back"><h3>How I implemented it</h3><p>I installed Tailscale directly on VM 200, outside Docker. I approved 10.0.0.245/32 and 10.0.0.250/32 instead of advertising the full home subnet.</p><h3>What matters in this lab</h3><p>I configured persistent IPv4/IPv6 forwarding and tested that a remote device could use my home internet connection through the exit node. I kept this personal setup separate from my school environment.</p><p class="service-state">Remote lab access and exit node tested</p><a class="inline-link" href="engineering.html#tailscale">Related build notes ↗</a><button type="button" class="card-return js-only" data-close-card>Return to overview ↑</button></div>
+</details>
+<details class="service-card" id="service-portainer"><summary><span class="service-top"><svg class="icon" aria-hidden="true"><use href="#i-sliders"/></svg><span class="eyebrow">03 / CONTAINER MANAGEMENT</span></span><h2>Portainer</h2><span class="card-front"><span class="service-description">I use Portainer’s interface to inspect and manage my Docker applications.</span><span class="tech-tags"><span>Docker</span><span>Management</span><span>VM 200</span></span></span><span class="card-toggle"><span class="show-details">View implementation</span><span class="show-overview">Return to overview</span><span aria-hidden="true">↻</span></span></summary>
+<div class="card-back"><h3>How I implemented it</h3><p>I installed Portainer alongside Pi-hole and checked that I could access them before adding the media applications.</p><h3>What matters in this lab</h3><p>The screenshot below shows Pi-hole, Portainer, Audiobookshelf, and Navidrome. Its status labels are from when I took it; this website does not monitor the containers.</p><p class="service-state">Four application containers recorded</p><a class="inline-link" href="engineering.html#storage">Related build notes ↗</a><button type="button" class="card-return js-only" data-close-card>Return to overview ↑</button></div>
+</details>
+<details class="service-card" id="service-audiobookshelf"><summary><span class="service-top"><svg class="icon" aria-hidden="true"><use href="#i-book"/></svg><span class="eyebrow">04 / AUDIOBOOKS & PODCASTS</span></span><h2>Audiobookshelf</h2><span class="card-front"><span class="service-description">I deployed a service for my audiobook and podcast collection. Adding and organizing the library is still in progress.</span><span class="tech-tags"><span>Docker</span><span>Media library</span><span>Persistent storage</span></span></span><span class="card-toggle"><span class="show-details">View implementation</span><span class="show-overview">Return to overview</span><span aria-hidden="true">↻</span></span></summary>
+<div class="card-back"><h3>How I implemented it</h3><p>I added Audiobookshelf after Portainer and Pi-hole. I keep track of its settings and application data separately from the audiobook and podcast files.</p><h3>What matters in this lab</h3><p>The container appears in Portainer. I am still adding and organizing audiobooks and podcasts.</p><p class="service-state">Deployed · library in progress</p><a class="inline-link" href="roadmap.html#in-progress">Related build notes ↗</a><button type="button" class="card-return js-only" data-close-card>Return to overview ↑</button></div>
+</details>
+<details class="service-card" id="service-navidrome"><summary><span class="service-top"><svg class="icon" aria-hidden="true"><use href="#i-music"/></svg><span class="eyebrow">05 / MUSIC</span></span><h2>Navidrome</h2><span class="card-front"><span class="service-description">I set up Navidrome as my personal music server and am still adding to the collection.</span><span class="tech-tags"><span>Docker</span><span>Music server</span><span>Media mounts</span></span></span><span class="card-toggle"><span class="show-details">View implementation</span><span class="show-overview">Return to overview</span><span aria-hidden="true">↻</span></span></summary>
+<div class="card-back"><h3>How I implemented it</h3><p>Navidrome runs in Docker on VM 200 alongside the other applications. The music collection is separate from the application’s configuration and persistent data.</p><h3>What matters in this lab</h3><p>I need to keep track of where the music is stored and whether Navidrome can read it. Mounting those files into the container makes them available to the application, but it does not back them up.</p><p class="service-state">Deployed · collection in progress</p><a class="inline-link" href="roadmap.html#in-progress">Related build notes ↗</a><button type="button" class="card-return js-only" data-close-card>Return to overview ↑</button></div>
+</details>
+<details class="service-card" id="service-docker"><summary><span class="service-top"><svg class="icon" aria-hidden="true"><use href="#i-box"/></svg><span class="eyebrow">06 / APPLICATION PLATFORM</span></span><h2>Docker + Compose</h2><span class="card-front"><span class="service-description">I installed Docker Engine to run the containers and used Compose files to define the services and their storage.</span><span class="tech-tags"><span>Docker Engine</span><span>Compose</span><span>Volumes & bind mounts</span></span></span><span class="card-toggle"><span class="show-details">View implementation</span><span class="show-overview">Return to overview</span><span aria-hidden="true">↻</span></span></summary>
+<div class="card-back"><h3>How I implemented it</h3><p>I installed Docker Engine and Compose on Ubuntu Server 24.04. I configured volumes and bind mounts for application data, tested Portainer and Pi-hole, then added the media services.</p><h3>What matters in this lab</h3><p>Application settings, media files, and backup copies all need attention. My Proxmox backups are on the same laptop, so they do not protect against losing that machine or its storage. A documented restore test is still planned.</p><p class="service-state">Runtime and four applications deployed</p><a class="inline-link" href="engineering.html#storage">Related build notes ↗</a><button type="button" class="card-return js-only" data-close-card>Return to overview ↑</button></div>
+</details>
+</section>
+<section class="section evidence-section" aria-labelledby="containers-title">
+<div class="section-heading">
+<div><p class="eyebrow">DEPLOYMENT EVIDENCE</p><h2 id="containers-title">The actual container list</h2></div>
+<p>All four applications appear in this Portainer capture. Tailscale is absent because I installed it natively on Ubuntu.</p></div>
+<figure class="evidence">
+  <a class="image-link" href="assets/screenshots/Portainer.png" data-lightbox aria-label="Enlarge screenshot: Four Docker application deployments"><img src="assets/screenshots/Portainer.png" width="1614" height="715" alt="Portainer container list showing Audiobookshelf, Navidrome, Pi-hole, and Portainer" loading="lazy" decoding="async"><span class="enlarge-hint"><svg class="icon" aria-hidden="true"><use href="#i-arrow"/></svg> Enlarge evidence</span></a>
+  <figcaption><strong>Four Docker application deployments</strong><p>The state labels belong to this screenshot. This portfolio does not query Portainer or connect to the running lab.</p><span class="evidence-label">Recorded screenshot · values are from the time of capture</span></figcaption>
+</figure>
+</section>
+<aside class="next-page">
+<div><p class="eyebrow">CONTINUE EXPLORING</p><h2>Installation was only part of the work</h2><p>Read how I set up storage, tested DNS and remote access, and worked through the problems I encountered.</p></div>
+<a class="button button-secondary" href="engineering.html">Continue <svg class="icon" aria-hidden="true"><use href="#i-arrow"/></svg></a></aside>
+
+  </main>
+  <footer class="site-footer container">
+<div><a class="footer-brand" href="index.html">MY HOME LAB<span>.</span></a><p>My first independently built home infrastructure project.</p></div>
+<p>IT Support Technician · CNSA student<br>One physical host. Documentation, not a live dashboard.</p><a class="back-top" href="#top">Back to top ↑</a></footer>
+  <dialog class="lightbox" aria-labelledby="lightbox-title">
+    <div class="lightbox-toolbar"><h2 id="lightbox-title">Screenshot evidence</h2><button type="button" class="lightbox-close" aria-label="Close enlarged screenshot">Close ×</button></div>
+    <div class="lightbox-image-wrap"></div>
+<p class="lightbox-caption"></p>
+  </dialog>
+</body>
+</html>

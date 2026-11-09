@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#08121f">
+  <meta name="description" content="Completed work, in-progress media libraries and documentation, and planned restore testing, off-device backups, monitoring, and service refinement.">
+  <title>Roadmap | My Home Lab</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
+</head>
+<body data-page="roadmap" id="top">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <svg class="icon-definitions" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></symbol>
+    <symbol id="i-server" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="7" rx="2"/><rect x="3" y="14" width="18" height="7" rx="2"/><path d="M7 6.5h.01M7 17.5h.01M12 6.5h5M12 17.5h5"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="m12 3 9 5v9l-9 5-9-5V8l9-5Zm0 9 9-4M12 12 3 8m9 4v10M7.5 5.5l9 5"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="m12 3 8 3v6c0 4-4 7-8 9-4-2-8-5-8-9V6l8-3Z"/><path d="m8 12 3 3 5-6"/></symbol>
+    <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M5 3v8m0 4v6M12 3v2m0 4v12M19 3v12m0 4v2M2 11h6M9 5h6m4 4v0M16 15h6"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M12 6v15M3 3c4 0 6 1 9 3 3-2 5-3 9-3v15c-4 0-6 1-9 3-3-2-5-3-9-3V3Z"/></symbol>
+    <symbol id="i-music" viewBox="0 0 24 24"><path d="M9 17V5l11-2v12M9 9l11-2"/><ellipse cx="6" cy="18" rx="3" ry="3"/><ellipse cx="17" cy="16" rx="3" ry="3"/></symbol>
+    <symbol id="i-network" viewBox="0 0 24 24"><circle cx="5" cy="6" r="3"/><circle cx="19" cy="6" r="3"/><circle cx="12" cy="19" r="3"/><path d="M8 6h8M6.5 9l4 7m7-7-4 7"/></symbol>
+  </svg>
+  <header class="site-header">
+    <div class="nav-wrap container">
+      <a class="brand" href="index.html" aria-label="My Home Lab — Home"><span class="brand-mark" aria-hidden="true">hl<span>.</span></span><span>MY HOME LAB<span class="brand-sub">BUILD NOTES / V.02</span></span></a>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-nav">Menu <span aria-hidden="true">☰</span></button>
+      <nav class="primary-nav" id="primary-nav" aria-label="Main navigation"><a href="index.html">Home</a>
+<a href="architecture.html">Architecture</a>
+<a href="services.html">Services</a>
+<a href="engineering.html">Engineering</a>
+<a href="roadmap.html" aria-current="page">Roadmap</a></nav>
+      <span class="header-note">INDEPENDENT PROJECT</span>
+    </div>
+  </header>
+  <main class="container" id="main" tabindex="-1">
+<header class="page-heading"><p class="eyebrow">04 / ROADMAP</p><h1>Where the lab stands.<br><span>What I’m doing next.</span></h1><p class="page-intro">The main services are set up. I’m still adding to the media libraries and documenting the build. Below is what I’ve finished, what I’m working on, and what I want to tackle next.</p></header>
+<div class="roadmap-layout">
+<section class="roadmap-column completed" aria-labelledby="completed-title">
+<div class="roadmap-heading"><span class="stage-number">01</span>
+<div><p class="eyebrow">COMPLETED</p><h2 id="completed-title">Built and configured</h2></div>
+</div>
+<ul class="completed-list"><li><span class="done-check" aria-hidden="true">✓</span>
+<div><h3>Proxmox on the HP laptop</h3><p>Installed Proxmox VE 9.2.21 on the HP ProBook 645 G1.</p><a class="inline-link" href="architecture.html">Read the notes ↗</a></div>
+</li><li><span class="done-check" aria-hidden="true">✓</span>
+<div><h3>Two Ubuntu environments</h3><p>Created CT 100 for Linux experiments and VM 200 for services.</p><a class="inline-link" href="architecture.html">Read the notes ↗</a></div>
+</li><li><span class="done-check" aria-hidden="true">✓</span>
+<div><h3>Docker Engine, Compose & Portainer</h3><p>Installed Docker Engine and Compose, deployed Portainer, and configured volumes and bind mounts.</p><a class="inline-link" href="engineering.html#storage">Read the notes ↗</a></div>
+</li><li><span class="done-check" aria-hidden="true">✓</span>
+<div><h3>Pi-hole and Dell DNS integration</h3><p>Tested normal DNS lookups and advertising-domain blocking on my Dell.</p><a class="inline-link" href="engineering.html#dns">Read the notes ↗</a></div>
+</li><li><span class="done-check" aria-hidden="true">✓</span>
+<div><h3>Personal Tailscale network</h3><p>Kept personal remote access separate from the school environment.</p><a class="inline-link" href="engineering.html#tailscale">Read the notes ↗</a></div>
+</li><li><span class="done-check" aria-hidden="true">✓</span>
+<div><h3>Two approved host routes</h3><p>Advertised 10.0.0.245/32 and 10.0.0.250/32 and tested access.</p><a class="inline-link" href="engineering.html#tailscale">Read the notes ↗</a></div>
+</li><li><span class="done-check" aria-hidden="true">✓</span>
+<div><h3>Optional internet exit node</h3><p>Configured IP forwarding, approved the exit node, and tested internet access through my home connection from a remote device.</p><a class="inline-link" href="engineering.html#exit-node">Read the notes ↗</a></div>
+</li><li><span class="done-check" aria-hidden="true">✓</span>
+<div><h3>First media-service deployments</h3><p>Deployed Audiobookshelf and Navidrome; libraries remain in progress.</p><a class="inline-link" href="services.html">Read the notes ↗</a></div>
+</li><li><span class="done-check" aria-hidden="true">✓</span>
+<div><h3>Scheduled Proxmox backups</h3><p>Manual backups completed; daily 03:00 local job configured.</p><a class="inline-link" href="engineering.html#backups">Read the notes ↗</a></div>
+</li></ul>
+</section>
+<div class="roadmap-next">
+<section class="roadmap-column" id="in-progress" aria-labelledby="progress-title">
+<div class="roadmap-heading"><span class="stage-number">02</span>
+<div><p class="eyebrow">IN PROGRESS</p><h2 id="progress-title">Using and documenting it</h2></div>
+</div>
+<article class="roadmap-item"><h3>Growing the media libraries</h3><p>I’m adding and organizing podcasts, audiobooks, and music. The services are installed, but the libraries are still a work in progress.</p></article>
+<article class="roadmap-item"><h3>Documenting the build</h3><p>I’m turning my configuration work, screenshots, and troubleshooting decisions into notes I can return to.</p></article>
+</section>
+<section class="roadmap-column planned" aria-labelledby="planned-title">
+<div class="roadmap-heading"><span class="stage-number">03</span>
+<div><p class="eyebrow">PLANNED</p><h2 id="planned-title">The next projects</h2></div>
+</div>
+<article class="roadmap-item"><span class="priority-label">RECOVERY PRIORITY</span><h3>Test and document a restore</h3><p>I want to restore a guest from backup and document the steps and checks. I have not verified a restore yet.</p></article>
+<article class="roadmap-item"><h3>Separate physical backup storage</h3><p>I want to keep backup copies on separate physical storage so they do not depend on the laptop or its SSD surviving.</p></article>
+<article class="roadmap-item"><h3>Ongoing resource monitoring</h3><p>I want to track CPU, memory, and storage use over time to help plan changes. The screenshots I have now only show individual moments.</p></article>
+<article class="roadmap-item"><h3>Keep improving the services</h3><p>As I use the services, I want to improve how I maintain them, organize their files, and configure the devices that connect to them.</p></article>
+</section>
+</div>
+</div>
+<aside class="recovery-note"><svg class="icon" aria-hidden="true"><use href="#i-shield"/></svg>
+<div><h2>The current recovery limit</h2><p>The lab and its backups are on one laptop. Losing that machine or its storage could mean losing both. I still need separate backup storage and a tested restore process; the lab also has no second host to take over if this one fails.</p></div>
+</aside>
+<aside class="next-page">
+<div><p class="eyebrow">CONTINUE EXPLORING</p><h2>Read the build notes</h2><p>The case studies describe what I changed, what I checked, and which limitations remain.</p></div>
+<a class="button button-secondary" href="engineering.html">Continue <svg class="icon" aria-hidden="true"><use href="#i-arrow"/></svg></a></aside>
+
+  </main>
+  <footer class="site-footer container">
+<div><a class="footer-brand" href="index.html">MY HOME LAB<span>.</span></a><p>My first independently built home infrastructure project.</p></div>
+<p>IT Support Technician · CNSA student<br>One physical host. Documentation, not a live dashboard.</p><a class="back-top" href="#top">Back to top ↑</a></footer>
+  <dialog class="lightbox" aria-labelledby="lightbox-title">
+    <div class="lightbox-toolbar"><h2 id="lightbox-title">Screenshot evidence</h2><button type="button" class="lightbox-close" aria-label="Close enlarged screenshot">Close ×</button></div>
+    <div class="lightbox-image-wrap"></div>
+<p class="lightbox-caption"></p>
+  </dialog>
+</body>
+</html>

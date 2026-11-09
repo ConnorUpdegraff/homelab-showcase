@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#08121f">
+  <meta name="description" content="First-person case studies covering Netplan, Docker persistence, Tailscale host routes and exit node, Pi-hole DNS, iPhone Private Relay, and Proxmox backups.">
+  <title>Engineering | My Home Lab</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
+</head>
+<body data-page="engineering" id="top">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <svg class="icon-definitions" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></symbol>
+    <symbol id="i-server" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="7" rx="2"/><rect x="3" y="14" width="18" height="7" rx="2"/><path d="M7 6.5h.01M7 17.5h.01M12 6.5h5M12 17.5h5"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="m12 3 9 5v9l-9 5-9-5V8l9-5Zm0 9 9-4M12 12 3 8m9 4v10M7.5 5.5l9 5"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="m12 3 8 3v6c0 4-4 7-8 9-4-2-8-5-8-9V6l8-3Z"/><path d="m8 12 3 3 5-6"/></symbol>
+    <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M5 3v8m0 4v6M12 3v2m0 4v12M19 3v12m0 4v2M2 11h6M9 5h6m4 4v0M16 15h6"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M12 6v15M3 3c4 0 6 1 9 3 3-2 5-3 9-3v15c-4 0-6 1-9 3-3-2-5-3-9-3V3Z"/></symbol>
+    <symbol id="i-music" viewBox="0 0 24 24"><path d="M9 17V5l11-2v12M9 9l11-2"/><ellipse cx="6" cy="18" rx="3" ry="3"/><ellipse cx="17" cy="16" rx="3" ry="3"/></symbol>
+    <symbol id="i-network" viewBox="0 0 24 24"><circle cx="5" cy="6" r="3"/><circle cx="19" cy="6" r="3"/><circle cx="12" cy="19" r="3"/><path d="M8 6h8M6.5 9l4 7m7-7-4 7"/></symbol>
+  </svg>
+  <header class="site-header">
+    <div class="nav-wrap container">
+      <a class="brand" href="index.html" aria-label="My Home Lab — Home"><span class="brand-mark" aria-hidden="true">hl<span>.</span></span><span>MY HOME LAB<span class="brand-sub">BUILD NOTES / V.02</span></span></a>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-nav">Menu <span aria-hidden="true">☰</span></button>
+      <nav class="primary-nav" id="primary-nav" aria-label="Main navigation"><a href="index.html">Home</a>
+<a href="architecture.html">Architecture</a>
+<a href="services.html">Services</a>
+<a href="engineering.html" aria-current="page">Engineering</a>
+<a href="roadmap.html">Roadmap</a></nav>
+      <span class="header-note">INDEPENDENT PROJECT</span>
+    </div>
+  </header>
+  <main class="container" id="main" tabindex="-1">
+<header class="page-heading"><p class="eyebrow">03 / ENGINEERING</p><h1>What I configured.<br><span>What I had to work through.</span></h1><p class="page-intro">I turned my HP ProBook into a Proxmox server to practice managing virtual environments. These notes cover what I set up, the problems I worked through, and how I checked my work.</p></header>
+<div class="engineering-intro"><p><strong>The networking took some of the most work.</strong> I wanted to reach the lab from my Dell and iPhone, use Pi-hole for DNS filtering, and understand when to use subnet routing or an exit node. Those stories come first.</p><button class="button button-secondary js-only" type="button" id="expand-cases" aria-expanded="false">Expand all case studies</button></div>
+<div class="engineering-layout">
+<nav class="case-index" aria-label="Case study index"><p class="eyebrow">BUILD NOTES</p><a href="#tailscale"><span>01</span>Reaching my lab with Tailscale</a><a href="#exit-node"><span>02</span>Using my Ubuntu VM as an exit node</a><a href="#dns"><span>03</span>Getting Pi-hole working on my Dell</a><a href="#private-relay"><span>04</span>Working through the iPhone Private Relay warning</a><a href="#addressing"><span>05</span>Giving the Ubuntu VM a static IP address</a><a href="#storage"><span>06</span>Setting up Docker and keeping application data</a><a href="#backups"><span>07</span>Scheduling backups and planning separate storage</a></nav>
+<section class="case-list" aria-label="Engineering case studies">
+<details class="case-study" id="tailscale" open><summary><span class="case-number">01</span>
+<div class="case-summary-text"><span class="eyebrow">Tailscale · subnet routing · personal and school networks</span><h2>Reaching my lab with Tailscale</h2></div>
+<span class="case-expand" aria-hidden="true">+</span></summary>
+<div class="case-body"><p class="case-goal">I wanted to access my home lab securely from my Dell and iPhone while away from home. I also use a Tailscale/Headscale environment for school, so I needed to keep my personal setup separate.</p>
+<div class="case-section"><h3>What I set up</h3><p>I installed Tailscale directly on Ubuntu VM 200, outside Docker. I connected my personal devices to my own tailnet—Tailscale’s name for a private network of devices. I advertised <code>10.0.0.245/32</code> and <code>10.0.0.250/32</code> as routes through the VM, then approved both in the Tailscale administration console.</p></div>
+<div class="case-section"><h3>Why I chose two host routes</h3><p>Subnet routing lets me reach devices on my home network through the Ubuntu VM. I only needed the Proxmox and Ubuntu hosts, so I used a <code>/32</code> route for each one; each route covers a single IPv4 address. This kept the routes limited to those two hosts. I still needed Tailscale authentication and access rules to control who could connect.</p></div>
+<div class="case-section validation"><h3>How I checked it</h3><p>I connected from a different internet connection and checked that I could reach the Proxmox and Ubuntu interfaces. The screenshot below shows both host routes approved, along with the separate exit-node setting.</p></div>
+<figure class="evidence evidence-narrow">
+  <a class="image-link" href="assets/screenshots/TailscaleSubnets.png" data-lightbox aria-label="Enlarge screenshot: Approved host routes and exit-node capability"><img src="assets/screenshots/TailscaleSubnets.png" width="772" height="667" alt="Tailscale configuration showing approved routes 10.0.0.245/32 and 10.0.0.250/32, with Use as exit node enabled" loading="lazy" decoding="async"><span class="enlarge-hint"><svg class="icon" aria-hidden="true"><use href="#i-arrow"/></svg> Enlarge evidence</span></a>
+  <figcaption><strong>Approved host routes and exit-node capability</strong><p>Both host routes and the exit-node option are approved here. I still have to select the exit node on a remote device before its internet traffic uses my home connection.</p><span class="evidence-label">Recorded screenshot · values are from the time of capture</span></figcaption>
+</figure>
+<div class="takeaway"><h3>What I learned</h3><p>Connecting my devices to Tailscale was only part of the setup. To reach the two home-network addresses, I also had to advertise the routes from Ubuntu and approve them in Tailscale.</p></div>
+</div>
+</details>
+<details class="case-study" id="exit-node"><summary><span class="case-number">02</span>
+<div class="case-summary-text"><span class="eyebrow">IP forwarding · exit-node selection · remote testing</span><h2>Using my Ubuntu VM as an exit node</h2></div>
+<span class="case-expand" aria-hidden="true">+</span></summary>
+<div class="case-body"><p class="case-goal">Once I could reach the lab remotely, I wanted to try sending a device’s internet traffic through my home connection. That is what the exit node is for.</p>
+<div class="case-section"><h3>What I set up</h3><p>I enabled IPv4 and IPv6 IP forwarding, which lets Ubuntu pass network traffic through the VM. I made those settings persistent so they would remain after a restart. Then I advertised the VM as an exit node, approved it in Tailscale, and selected it on a remote device.</p></div>
+<div class="case-section"><h3>Understanding the difference</h3><p>The two host routes gave me access to specific systems at home. The exit node gave me the option to use my home connection for internet traffic as well. I had to select it on the device I was testing; approving it in Tailscale did not automatically turn it on for every device.</p></div>
+<div class="case-section validation"><h3>How I checked it</h3><p>I tested from a different internet connection and checked that the remote device’s internet traffic went through the Ubuntu server and out through my home connection. This was a separate check from reaching the two lab hosts.</p></div>
+<div class="three-paths">
+<div><strong>Tailnet connection</strong><p>Connects my authorized devices through Tailscale.</p></div>
+<div><strong>Host routes</strong><p>Let me reach the two approved home-network addresses.</p></div>
+<div><strong>Selected exit node</strong><p>Sends that device’s internet traffic through my home connection.</p></div>
+</div>
+<div class="takeaway"><h3>What I learned</h3><p>This helped me understand why subnet routing and an exit node have separate settings. I can reach the lab without choosing to send all of a device’s internet traffic through it.</p></div>
+</div>
+</details>
+<details class="case-study" id="dns"><summary><span class="case-number">03</span>
+<div class="case-summary-text"><span class="eyebrow">Docker · TCP/UDP 53 · DNS lookup tests</span><h2>Getting Pi-hole working on my Dell</h2></div>
+<span class="case-expand" aria-hidden="true">+</span></summary>
+<div class="case-body"><p class="case-goal">I wanted to use Pi-hole on my Dell and check that it actually blocked advertising domains. DNS looks up IP addresses for domain names, so testing those lookups was a useful way to check the filtering.</p>
+<div class="case-section"><h3>What I set up</h3><p>I ran Pi-hole in Docker and published DNS port <code>53</code> over both TCP and UDP. I configured upstream DNS resolvers for lookups Pi-hole needed to pass on, then set up Tailscale DNS so my Dell would use Pi-hole.</p></div>
+<div class="case-section"><h3>Working around the gateway limitation</h3><p>My Xfinity gateway did not let me make the network-wide DNS change I wanted. I configured the Dell’s DNS path instead. Other home devices do not automatically use Pi-hole just because it is running on the network.</p></div>
+<div class="case-section validation"><h3>How I checked it</h3><p>I used <code>nslookup</code> and <code>Resolve-DnsName</code> to test normal domain lookups and a blocked advertising domain. Normal lookups resolved, while the blocked lookup returned <code>0.0.0.0</code>. That gave me a concrete check that the filtering was working for the Dell.</p></div>
+<figure class="evidence">
+  <a class="image-link" href="assets/screenshots/PiHole.png" data-lightbox aria-label="Enlarge screenshot: Pi-hole DNS activity at capture time"><img src="assets/screenshots/PiHole.png" width="2559" height="1474" alt="Pi-hole dashboard with aggregated query counts, blocked queries, and query activity charts" loading="lazy" decoding="async"><span class="enlarge-hint"><svg class="icon" aria-hidden="true"><use href="#i-arrow"/></svg> Enlarge evidence</span></a>
+  <figcaption><strong>Pi-hole DNS activity at capture time</strong><p>My Pi-hole dashboard when I took the screenshot. It shows totals and activity charts, without a detailed device or query log. The numbers do not update on this website.</p><span class="evidence-label">Recorded screenshot · values are from the time of capture</span></figcaption>
+</figure>
+<div class="takeaway"><h3>What I learned</h3><p>I needed to check both ends: Pi-hole had to be running, and my Dell had to use it for DNS. The lookup tests helped me verify the setup beyond simply opening the dashboard.</p></div>
+</div>
+</details>
+<details class="case-study" id="private-relay"><summary><span class="case-number">04</span>
+<div class="case-summary-text"><span class="eyebrow">Tailscale DNS override · different settings for each device</span><h2>Working through the iPhone Private Relay warning</h2></div>
+<span class="case-expand" aria-hidden="true">+</span></summary>
+<div class="case-body"><p class="case-goal">My iPhone displayed an iCloud Private Relay incompatibility warning when I used Tailscale’s DNS override with Pi-hole. I wanted to understand which setting caused the conflict before deciding what to change.</p>
+<div class="case-section"><h3>What I tried</h3><p>I changed the Tailscale DNS override setting and compared the iPhone’s behavior. This setting controls whether Tailscale replaces the device’s usual DNS settings. Changing it helped me narrow the warning down to the Pi-hole and Tailscale DNS combination.</p></div>
+<div class="case-section"><h3>The settings I chose</h3><p>I kept Pi-hole DNS filtering on my Dell and chose to preserve Private Relay on the iPhone while using cellular. The same DNS settings did not suit how I wanted to use both devices.</p></div>
+<div class="case-section validation"><h3>What I could confirm</h3><p>The warning was tied to the DNS override configuration I tested. I worked around the conflict by choosing different settings for the Dell and iPhone; I did not get Pi-hole filtering and Private Relay working together in that setup.</p></div>
+<div class="decision-pair">
+<div><span class="eyebrow">DELL</span><h3>Pi-hole through Tailscale DNS</h3><p>I kept the DNS filtering setup I had tested.</p></div>
+<div><span class="eyebrow">IPHONE ON CELLULAR</span><h3>Preserve iCloud Private Relay</h3><p>I chose to keep Private Relay available on cellular.</p></div>
+</div>
+<div class="takeaway"><h3>What I learned</h3><p>I could make a useful choice without making both devices behave the same way. For my setup, that meant filtering DNS on the Dell and keeping Private Relay on cellular for the iPhone. It does not make either option universally safer.</p></div>
+</div>
+</details>
+<details class="case-study" id="addressing"><summary><span class="case-number">05</span>
+<div class="case-summary-text"><span class="eyebrow">Netplan · static IPv4 · DHCP range</span><h2>Giving the Ubuntu VM a static IP address</h2></div>
+<span class="case-expand" aria-hidden="true">+</span></summary>
+<div class="case-body"><p class="case-goal">I wanted the Ubuntu VM to keep the same IP address so I could reliably connect to the services running on it. Configuring that myself was part of learning to administer Ubuntu.</p>
+<div class="case-section"><h3>What I set up</h3><p>I used Netplan, Ubuntu’s network configuration tool, to set a static IPv4 address. My gateway’s DHCP range was <code>10.0.0.2</code> through <code>10.0.0.240</code>, so I chose an address outside it.</p></div>
+<div class="case-section"><h3>Why the DHCP range mattered</h3><p>DHCP assigns addresses to devices automatically. By choosing a static address outside that range, I kept the VM’s address out of the pool the gateway could hand to another device. I also needed the correct gateway and DNS settings for the VM to reach the internet and look up domain names.</p></div>
+<div class="case-section validation"><h3>How I checked it</h3><p>I checked that the VM could reach the gateway, access the internet, and resolve domain names. I did these checks before relying on the address for my hosted services.</p></div>
+<div class="config-note"><span class="eyebrow">MY ADDRESSING SETUP</span><p>Gateway DHCP range: <code>10.0.0.2–10.0.0.240</code><br>Ubuntu VM: static IPv4 address set with Netplan, outside that range.</p></div>
+<div class="takeaway"><h3>What I learned</h3><p>Setting the address was only one part of the network configuration. Checking the gateway, internet access, and DNS separately helped me confirm the VM was ready for the services.</p></div>
+</div>
+</details>
+<details class="case-study" id="storage"><summary><span class="case-number">06</span>
+<div class="case-summary-text"><span class="eyebrow">Docker Engine · Compose · volumes and bind mounts</span><h2>Setting up Docker and keeping application data</h2></div>
+<span class="case-expand" aria-hidden="true">+</span></summary>
+<div class="case-body"><p class="case-goal">I wanted to run several applications inside VM 200 and understand where they kept their data. I needed application settings and files to remain available even when a container was replaced.</p>
+<div class="case-section"><h3>What I set up</h3><p>I installed Docker Engine and Docker Compose, then deployed Portainer and Pi-hole. I used Compose files to describe services and their storage mappings, including volumes and bind mounts. After testing the initial services, I added Audiobookshelf and Navidrome.</p></div>
+<div class="case-section"><h3>Working out what needed to persist</h3><p>Volumes and bind mounts give applications storage that stays separate from the container itself. I used them for application data and kept track of the separate audiobook, podcast, and music libraries. These files still need backups; keeping them outside a container does not protect them if the underlying storage fails.</p></div>
+<div class="case-section validation"><h3>How I checked it</h3><p>I checked that I could access Portainer and Pi-hole after deploying them. The Portainer screenshot on the Services page shows all four application containers. Audiobookshelf and Navidrome are deployed, but I am still adding content to their libraries.</p></div>
+<div class="three-paths">
+<div><strong>Application data</strong><p>Settings and other files the applications need to keep.</p></div>
+<div><strong>Media libraries</strong><p>The audiobook, podcast, and music files I add.</p></div>
+<div><strong>Backup copies</strong><p>Copies I can use to recover data if the working files are lost.</p></div>
+</div>
+<p><a class="inline-link" href="services.html">See my Portainer container list ↗</a></p>
+<div class="takeaway"><h3>What I learned</h3><p>Writing the Compose configuration made me pay attention to where each application stored its files. I also learned to keep persistent storage and backups as separate tasks.</p></div>
+</div>
+</details>
+<details class="case-study" id="backups"><summary><span class="case-number">07</span>
+<div class="case-summary-text"><span class="eyebrow">Proxmox · 03:00 · snapshot mode · ZSTD</span><h2>Scheduling backups and planning separate storage</h2></div>
+<span class="case-expand" aria-hidden="true">+</span></summary>
+<div class="case-body"><p class="case-goal">After setting up the Ubuntu environments, I wanted backups of both CT 100 and VM 200. I had put time into configuring them and wanted a way to recover that work.</p>
+<div class="case-section"><h3>What I set up</h3><p>I completed manual backups of CT 100 and VM 200, then created a daily Proxmox backup job at <code>03:00</code>. I chose snapshot mode and ZSTD compression, with <code>keep-last=3</code> to retain the last three backups for each guest.</p></div>
+<div class="case-section"><h3>Why I still need separate storage</h3><p>Right now, the backups are on the same physical laptop as the systems they protect. They would not help if I lost the laptop or the storage holding both the guests and backups. I still need backup copies on separate physical storage.</p></div>
+<div class="case-section validation"><h3>What I have checked so far</h3><p>The manual backups completed. The screenshot shows the daily job enabled for both guests, with local storage and the retention setting. It confirms the schedule I configured, not whether later automatic runs succeeded. I have not completed a documented restore test yet.</p></div>
+<figure class="evidence">
+  <a class="image-link" href="assets/screenshots/ProxmoxBackup.png" data-lightbox aria-label="Enlarge screenshot: Daily backup schedule for CT 100 and VM 200"><img src="assets/screenshots/ProxmoxBackup.png" width="2386" height="1164" alt="Proxmox backup schedule showing enabled 03:00 job, local storage, keep-last=3, and guests 100 and 200" loading="lazy" decoding="async"><span class="enlarge-hint"><svg class="icon" aria-hidden="true"><use href="#i-arrow"/></svg> Enlarge evidence</span></a>
+  <figcaption><strong>Daily backup schedule for CT 100 and VM 200</strong><p>This shows the schedule, local storage, selected guests, and retention. Snapshot mode and ZSTD are settings I chose, but they are not shown in this view. The next-run date is from when I took the screenshot.</p><span class="evidence-label">Recorded screenshot · values are from the time of capture</span></figcaption>
+</figure>
+<div class="takeaway"><h3>What I learned</h3><p>I have made backups and set up the schedule, but I still need to practice restoring a guest. My next steps are to document that restore test and keep backup copies off the laptop.</p></div>
+</div>
+</details>
+</section>
+</div>
+<aside class="next-page">
+<div><p class="eyebrow">CONTINUE EXPLORING</p><h2>What I’m working on next</h2><p>I’m planning a restore test and separate backup storage while continuing to use and document the lab.</p></div>
+<a class="button button-secondary" href="roadmap.html">Continue <svg class="icon" aria-hidden="true"><use href="#i-arrow"/></svg></a></aside>
+
+  </main>
+  <footer class="site-footer container">
+<div><a class="footer-brand" href="index.html">MY HOME LAB<span>.</span></a><p>My first independently built home infrastructure project.</p></div>
+<p>IT Support Technician · CNSA student<br>One physical host. Documentation, not a live dashboard.</p><a class="back-top" href="#top">Back to top ↑</a></footer>
+  <dialog class="lightbox" aria-labelledby="lightbox-title">
+    <div class="lightbox-toolbar"><h2 id="lightbox-title">Screenshot evidence</h2><button type="button" class="lightbox-close" aria-label="Close enlarged screenshot">Close ×</button></div>
+    <div class="lightbox-image-wrap"></div>
+<p class="lightbox-caption"></p>
+  </dialog>
+</body>
+</html>
